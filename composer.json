@@ -1,0 +1,17 @@
+{
+    "name": "ebcms/cms",
+    "description": "ebcms cms",
+    "type": "ebcms-app",
+    "license": "Apache-2.0",
+    "require": {
+        "ebcms/admin": "^1.0",
+        "ebcms/web": "1.*",
+        "ebcms/xss-clear": "1.*",
+        "ebcms/fragment": "1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\Ebcms\\Cms\\": "src/library/"
+        }
+    }
+}
