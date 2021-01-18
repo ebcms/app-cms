@@ -4,9 +4,9 @@
         {include web/common/nav@ebcms/cms}
         {if $category_model->hasSubList($category['id'])}
         <div class="row">
-            {foreach $category_model->all() as $vo}
+            {foreach $category_model->getAll() as $vo}
             {if $vo['pid']==$category['id'] && ($vo['type']=='list' || $category_model->hasSubList($vo['id']))}
-            {php $ids = $category_model->subid($vo['id'])}
+            {php $ids = $category_model->getAllSubId($vo['id'])}
             {php $ids[]=$vo['id']}
             <div class="col-md-6">
                 <div class="card mb-3 bg-light">
@@ -45,7 +45,7 @@
         {else}
         <div class="card mb-3 bg-light">
             <div class="list-group list-group-flush">
-                {foreach $category_model->all() as $vo}
+                {foreach $category_model->getAll() as $vo}
                 {if $vo['pid']==$category['id']}
                 <a class="list-group-item list-group-item-action text-nowrap text-truncate" href="{:$router->buildUrl('/ebcms/cms/web/category', ['id'=>$vo['alias']?:$vo['id']])}">▪ {$vo.title}</a>
                 {/if}

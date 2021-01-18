@@ -45,7 +45,7 @@ class Category extends Common
         ];
         $data['position'] = (function () use ($modelCategory, $category, $router) {
             $res = [];
-            foreach ($modelCategory->pdata($category['id']) as $key => $value) {
+            foreach ($modelCategory->getParentsAndSelf($category['id']) as $value) {
                 $res[] = [
                     'title' => $value['title'],
                     'url' => $router->buildUrl('/ebcms/cms/web/category', [

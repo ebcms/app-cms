@@ -9,7 +9,7 @@
             <li class="nav-item active">
                 <a class="nav-link" href="{:$router->buildUrl('/ebcms/cms/web/index')}">首页 <span class="sr-only">(current)</span></a>
             </li>
-            {foreach $category_model->all() as $vo}
+            {foreach $category_model->getAll() as $vo}
             {if $vo['pid']==0 && $vo['nav']==1}
             {if $vo['type']=='channel'}
             <li class="nav-item dropdown">
@@ -17,7 +17,7 @@
                     {$vo.title}
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    {foreach $category_model->all() as $sub}
+                    {foreach $category_model->getAll() as $sub}
                     {if $sub['pid']==$vo['id'] && $sub['nav']==1}
                     <a class="dropdown-item" href="{:$router->buildUrl('/ebcms/cms/web/category', ['id'=>$sub['alias']?:$sub['id']])}">{$sub.title}</a>
                     {/if}

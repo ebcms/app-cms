@@ -13,7 +13,7 @@ class Category extends Model
         return 'ebcms_cms_category';
     }
 
-    public function all(): array
+    public function getAll(): array
     {
         static $categorys;
         if ($categorys == null) {
@@ -28,13 +28,13 @@ class Category extends Model
         return $categorys;
     }
 
-    public function subdata($id): array
+    public function getAllSub($id): array
     {
         $res = [];
-        foreach ($this->all() as $value) {
+        foreach ($this->getAll() as $value) {
             if ($value['pid'] == $id) {
                 $res[] = $value;
-                foreach ($this->subdata($value['id']) as $sub) {
+                foreach ($this->getAllSub($value['id']) as $sub) {
                     $res[] = $sub;
                 }
             }
@@ -42,10 +42,10 @@ class Category extends Model
         return $res;
     }
 
-    public function subid($id): array
+    public function getAllSubId($id): array
     {
         $res = [];
-        foreach ($this->subdata($id) as $value) {
+        foreach ($this->getAllSub($id) as $value) {
             $res[] = $value['id'];
         }
         return $res;
@@ -53,7 +53,7 @@ class Category extends Model
 
     public function hasSubList($id): bool
     {
-        foreach ($this->subdata($id) as $value) {
+        foreach ($this->getAllSub($id) as $value) {
             if ($value['type'] == 'list') {
                 return true;
             }
@@ -63,7 +63,7 @@ class Category extends Model
 
     public function getItem($id): ?array
     {
-        foreach ($this->all() as $value) {
+        foreach ($this->getAll() as $value) {
             if ($value['id'] == $id) {
                 return $value;
             }
@@ -71,7 +71,7 @@ class Category extends Model
         return null;
     }
 
-    public function pdata($id): array
+    public function getParentsAndSelf($id): array
     {
         $res = [];
         return $this->_pdata($id, $res);
@@ -79,7 +79,7 @@ class Category extends Model
 
     private function _pdata($id, array &$res = []): array
     {
-        foreach ($this->all() as $vo) {
+        foreach ($this->getAll() as $vo) {
             if ($vo['id'] == $id) {
                 $this->_pdata($vo['pid'], $res);
                 $res[] = $vo;

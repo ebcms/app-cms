@@ -59,7 +59,7 @@ class Content extends Common
         ];
         $data['position'] = (function () use ($modelCategory, $category, $router, $content) {
             $res = [];
-            foreach ($modelCategory->pdata($category['id']) as $value) {
+            foreach ($modelCategory->getParentsAndSelf($category['id']) as $value) {
                 $res[] = [
                     'title' => $value['title'],
                     'url' => $router->buildUrl('/ebcms/cms/web/category', [

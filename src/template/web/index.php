@@ -10,9 +10,9 @@
 <div class="row">
     <div class="col-md-9">
         <div class="row">
-            {foreach $category_model->all() as $vo}
+            {foreach $category_model->getAll() as $vo}
             {if !$vo['pid'] && ($category_model->hasSubList($vo['id']) || $vo['type']=='list')}
-            {php $ids = $category_model->subid($vo['id'])}
+            {php $ids = $category_model->getAllSubId($vo['id'])}
             {php $ids[]=$vo['id']}
             <div class="col-md-6">
                 <div class="card mb-3 bg-light">
