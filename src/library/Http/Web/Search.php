@@ -8,6 +8,7 @@ use App\Ebcms\Cms\Model\Content;
 use Ebcms\Database\Db;
 use Ebcms\Pagination;
 use Ebcms\RequestFilter;
+use Ebcms\Router;
 use Ebcms\Template;
 
 class Search extends Common
@@ -17,6 +18,7 @@ class Search extends Common
         RequestFilter $input,
         Pagination $pagination,
         Content $modelContent,
+        Router $router,
         Db $db,
         Template $template
     ) {
@@ -27,6 +29,14 @@ class Search extends Common
             'keywords' => $input->get('q'),
             'description' => $input->get('q'),
         ];
+        $data['position'] = (function () use ($router) {
+            $res[] = [
+                'title' => '搜索',
+                'url' => $router->buildUrl('/ebcms/cms/web/search'),
+            ];
+            return $res;
+        })();
+
         $where = 'WHERE state=1 AND MATCH (title,keywords,description,tags,body) AGAINST (:q IN NATURAL LANGUAGE MODE)';
         $total = $modelContent->count($db->slave()::raw($where, [
             ':q' => $input->get('q'),

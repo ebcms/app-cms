@@ -26,6 +26,7 @@ class Index extends Common
     ) {
         $options = [
             'ORDER' => [
+                'top' => 'DESC',
                 'id' => 'DESC',
             ],
         ];
@@ -35,14 +36,12 @@ class Index extends Common
         if ($input->get('state')) {
             $options['state'] = $input->get('state');
         }
-        if (in_array($input->get('top'), ['0', '1'])) {
-            $options['top'] = $input->get('top');
-        }
         if ($q = $input->get('q')) {
             $options['OR'] = [
                 'id' => $q,
                 'title[~]' => '%' . $q . '%',
                 'body[~]' => '%' . $q . '%',
+                'extra[~]' => '%' . $q . '%',
             ];
         }
         $total = $contentModel->count($options);

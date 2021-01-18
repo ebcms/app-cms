@@ -28,6 +28,7 @@ use Ebcms\FormBuilder\Other\TextUpload;
 use Ebcms\FormBuilder\Row;
 use Ebcms\FormBuilder\Summary;
 use Ebcms\RequestFilter;
+use Ebcms\Xss;
 
 class Update extends Common
 {
@@ -54,9 +55,10 @@ class Update extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('id', $data['id'])),
                     (new Text('标题', 'title', $data['title']))->set('help', '一般不超过80个字符')->set('required', 1),
+                    (new Summernote('内容', 'body', $data['body'], $router->buildUrl('/ebcms/admin/upload'))),
                     ...(function () use ($router, $category, $data): array {
                         $res = [];
-                        $body = unserialize($data['body']);
+                        $extra = unserialize($data['extra']);
                         // 筛选项
                         foreach (array_filter(explode(PHP_EOL, $category['filters'])) as $val) {
                             $field = [];
@@ -100,33 +102,33 @@ class Update extends Common
                             switch ($field['type']) {
                                 case 'summernote':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Summernote($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Summernote($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'simplemde':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new SimpleMDE($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new SimpleMDE($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'text':
-                                    $tmp = (new Text($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Text($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'textarea':
-                                    $tmp = (new Textarea($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Textarea($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'cover':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Cover($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Cover($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'pics':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Pics($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Pics($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'textupload':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new TextUpload($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new TextUpload($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'files':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Files($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Files($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'radio':
                                     $field['options'] = (function () use ($field): array {
@@ -140,7 +142,7 @@ class Update extends Common
                                         return $res;
                                     })();
                                     $field['inline'] = $field['inline'] ?? 1;
-                                    $tmp = (new Radio($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Radio($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
                                 case 'checkbox':
                                     $field['options'] = (function () use ($field): array {
@@ -155,7 +157,7 @@ class Update extends Common
                                     })();
                                     $field['value'] = array_filter(explode('|', $field['value']));
                                     $field['inline'] = $field['inline'] ?? 1;
-                                    $tmp = (new Checkbox($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? []));
+                                    $tmp = (new Checkbox($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? []));
                                     break;
                                 case 'select':
                                     $field['options'] = (function () use ($field): array {
@@ -168,7 +170,7 @@ class Update extends Common
                                         }
                                         return $res;
                                     })();
-                                    $tmp = (new Select($field['label'], 'body[' . $field['name'] . ']', $body[$field['name']] ?? ''));
+                                    $tmp = (new Select($field['label'], 'extra[' . $field['name'] . ']', $extra[$field['name']] ?? ''));
                                     break;
 
                                 default:
@@ -199,12 +201,18 @@ class Update extends Common
                 (new Col('col-md-3'))->addItem(
                     (new Text('别名', 'alias', $data['alias'])),
                     (new Cover('频道图', 'cover', $data['cover'], $router->buildUrl('/ebcms/admin/upload'))),
-                    (new Radio('是否置顶', 'top', $data['top']))->set('options', [
+                    (new Radio('置顶', 'top', $data['top']))->set('options', [
                         [
-                            'label' => '是',
+                            'label' => '三级置顶',
+                            'value' => 3,
+                        ], [
+                            'label' => '二级置顶',
+                            'value' => 2,
+                        ], [
+                            'label' => '一级置顶',
                             'value' => 1,
                         ], [
-                            'label' => '否',
+                            'label' => '不置顶',
                             'value' => 0,
                         ],
                     ])->set('inline', true),
@@ -215,7 +223,6 @@ class Update extends Common
                     ),
                     (new Summary('其他参数设置'))->addItem(
                         new Text('模板', 'tpl', $data['tpl']),
-                        (new Number('优先级', 'priority', $data['priority'], 1, 100))->set('help', '越大越靠前'),
                         new Text('重定向地址', 'redirect_uri', $data['redirect_uri'])
                     )
                 )
@@ -224,6 +231,7 @@ class Update extends Common
         return $this->html($form->__toString());
     }
     public function post(
+        Xss $xss,
         RequestFilter $input,
         Content $contentModel,
         Tag $tagModel
@@ -238,7 +246,6 @@ class Update extends Common
             'tags' => '',
             'state' => '',
             'redirect_uri' => '',
-            'priority' => '',
             'top' => '',
             'filter0' => '',
             'filter1' => '',
@@ -248,7 +255,10 @@ class Update extends Common
             'filter5' => '',
         ]);
         $update['update_time'] = time();
-        $update['body'] = serialize($input->post('body'));
+        $update['extra'] = serialize($input->post('extra'));
+        if ($input->has('post.body')) {
+            $update['body'] = $input->post('body', '', [[$xss, 'clear']]);
+        }
         $update['tags'] = implode(',', array_unique(array_filter(explode(',', str_replace([' ', '|', ',', '，'], ',', $update['tags'])))));
 
         $contentModel->update($update, [

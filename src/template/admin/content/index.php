@@ -10,12 +10,12 @@
             {foreach $datas as $vo}
             {if $vo['pid']==$pid}
             {if $vo['type']=='channel'}
-            <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}{$vo.title}</option>
+            <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}▼ {$vo.title}</option>
             {:mulu($datas, $vo['id'], $curid, $level+1)}
             {elseif $vo['type'] == 'list'}
-            <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}">{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}{$vo.title}</option>
+            <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}">{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}┣ {$vo.title}</option>
             {else}
-            <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}{$vo.title}</option>
+            <!-- <option {if $curid==$vo['id'] }selected{/if} value="{$vo['id']}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level)}┣ {$vo.title}</option> -->
             {/if}
             {/if}
             {/foreach}
@@ -28,13 +28,6 @@
             <option {if $input->get('state')=='' }selected{/if} value="">不限</option>
             <option {if $input->get('state')=='2' }selected{/if} value="2">待审</option>
             <option {if $input->get('state')=='1' }selected{/if} value="1">发布</option>
-        </select>
-
-        <label class="mr-2">置顶</label>
-        <select class="custom-select mr-sm-2" name="top" onchange="document.getElementById('form_2').submit();">
-            <option {if $input->get('top')=='' }selected{/if} value="">不限</option>
-            <option {if $input->get('top')=='0' }selected{/if} value="0">未置顶</option>
-            <option {if $input->get('top')=='1' }selected{/if} value="1">置顶</option>
         </select>
 
         <label class="mr-2">分页</label>
@@ -138,7 +131,6 @@ function gl_format_date($time)
                 <td class="text-nowrap">
                     <a href="{:$router->buildUrl('/ebcms/cms/admin/content/update', ['id'=>$vo['id']])}">编辑</a>
                     <a href="{:$router->buildUrl('/ebcms/cms/admin/content/create', ['category_id'=>$vo['category_id'], 'copyfrom'=>$vo['id']])}">复制</a>
-                    <a href="{:$router->buildUrl('/ebcms/cms/admin/content/delete', ['id'=>$vo['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
                 </td>
             </tr>
             {/foreach}
@@ -164,10 +156,12 @@ function gl_format_date($time)
                                 {function test($datas, $pid=0, $level=0)}
                                 {foreach $datas as $vo}
                                 {if $vo['pid']==$pid}
-                                {if $vo['type']!='list'}
-                                <option value="{$vo.id}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;', $level)}┣ {$vo.title}</option>
-                                {else}
+                                {if $vo['type']=='channel'}
+                                <option value="{$vo.id}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;', $level)}▼ {$vo.title}</option>
+                                {elseif $vo['type']=='list'}
                                 <option value="{$vo.id}">{:str_repeat('&nbsp;&nbsp;&nbsp;', $level)}┣ {$vo.title}</option>
+                                {else}
+                                <!-- <option value="{$vo.id}" disabled>{:str_repeat('&nbsp;&nbsp;&nbsp;', $level)}┣ {$vo.title}</option> -->
                                 {/if}
                                 {:test($datas, $vo['id'], $level+1)}
                                 {/if}
@@ -194,7 +188,7 @@ function gl_format_date($time)
                                 </select>
                             </div>
                             <div class="col-auto my-1">
-                                <button type="button" class="btn btn-warning" id="deletes">删除</button>
+                                <button type="button" class="btn btn-warning" id="delete">删除</button>
                             </div>
                         </div>
                     </form>
@@ -223,7 +217,7 @@ function gl_format_date($time)
                 $(this).prop("checked", !$(this).prop("checked"));
             });
         });
-        $("#deletes").bind('click', function() {
+        $("#delete").bind('click', function() {
             if (confirm('确定删除吗？删除后不可恢复！')) {
                 var ids = [];
                 $.each($('#tablexx input:checkbox:checked'), function() {
@@ -231,7 +225,7 @@ function gl_format_date($time)
                 });
                 $.ajax({
                     type: "POST",
-                    url: "{:$router->buildUrl('/ebcms/cms/admin/content/deletes')}",
+                    url: "{:$router->buildUrl('/ebcms/cms/admin/content/delete')}",
                     data: {
                         ids: ids
                     },

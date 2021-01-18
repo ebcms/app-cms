@@ -7,6 +7,7 @@ namespace App\Ebcms\Cms\Http\Web;
 use App\Ebcms\Cms\Model\Content as ModelContent;
 use App\Ebcms\Cms\Model\Category;
 use Ebcms\RequestFilter;
+use Ebcms\Router;
 use Ebcms\Template;
 
 class Content extends Common
@@ -16,6 +17,7 @@ class Content extends Common
         ModelContent $modelContent,
         Category $modelCategory,
         RequestFilter $input,
+        Router $router,
         Template $template
     ) {
         if (!$content = $modelContent->get('*', [
@@ -45,7 +47,7 @@ class Content extends Common
             return $this->redirect($content['redirect_uri']);
         }
 
-        $content['body'] = unserialize($content['body']);
+        $content['extra'] = unserialize($content['extra']);
 
         $data = [];
         $data['category'] = $category;
@@ -53,8 +55,23 @@ class Content extends Common
         $data['meta'] = [
             'title' => $content['title'],
             'keywords' => $content['keywords'],
-            'description' => $content['description'] ?: mb_substr(str_replace(["\r", "\n", "\t"], '', trim(strip_tags($content['body']['body'] ?? ''))), 0, 250),
+            'description' => $content['description'] ?: mb_substr(str_replace(["\r", "\n", "\t"], '', trim(strip_tags($content['body']))), 0, 250),
         ];
+        $data['position'] = (function () use ($modelCategory, $category, $router, $content) {
+            $res = [];
+            foreach ($modelCategory->pdata($category['id']) as $value) {
+                $res[] = [
+                    'title' => $value['title'],
+                    'url' => $router->buildUrl('/ebcms/cms/web/category', [
+                        'id' => $value['alias'] ?: $value['id'],
+                    ]),
+                ];
+            }
+            $res[] = [
+                'title' => $content['title'],
+            ];
+            return $res;
+        })();
 
         return $this->html($template->renderFromFile('web/' . ($content['tpl'] ?: ($category['tpl_content'] ?: 'content')) . '@ebcms/cms', $data));
     }

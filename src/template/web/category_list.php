@@ -1,14 +1,7 @@
 {include web/common/header@ebcms/cms}
 <div class="row">
     <div class="col-md-9">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{:$router->buildUrl('/ebcms/cms/web/index')}">主页</a></li>
-                {foreach $category_model->pdata($category['id']) as $vo}
-                <li class="breadcrumb-item"><a href="{:$router->buildUrl('/ebcms/cms/web/category', ['id'=>$vo['alias']?:$vo['id']])}">{$vo.title}</a></li>
-                {/foreach}
-            </ol>
-        </nav>
+        {include web/common/nav@ebcms/cms}
         <div class="card mb-3 bg-light">
             <div class="card-header"><a href="{:$router->buildUrl('/ebcms/cms/web/category', ['id'=>$category['alias']?:$category['id']])}">{$category['title']}</a></div>
             <div class="list-group list-group-flush">

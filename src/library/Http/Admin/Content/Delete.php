@@ -11,16 +11,16 @@ use Ebcms\RequestFilter;
 
 class Delete extends Common
 {
-    public function get(
+    public function post(
         RequestFilter $input,
         Content $contentModel,
         Tag $tagModel
     ) {
         $contentModel->delete([
-            'id' => $input->get('id'),
+            'id' => $input->post('ids'),
         ]);
         $tagModel->delete([
-            'content_id' => $input->get('id'),
+            'content_id' => $input->post('ids'),
         ]);
         return $this->success('操作成功！');
     }

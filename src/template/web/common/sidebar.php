@@ -1,3 +1,4 @@
+{if isset($category)}
 {if $category['type']=='channel'}
 <div class="card">
     <div class="card-header">
@@ -29,4 +30,5 @@
         {/foreach}
     </div>
 </div>
+{/if}
 {/if}

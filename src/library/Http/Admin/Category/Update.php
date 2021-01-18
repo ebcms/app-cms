@@ -77,21 +77,6 @@ class Update extends Common
                                 $res[] = new Text('栏目模板', 'tpl_category', $data['tpl_category']);
                                 $res[] = new Text('内容模板', 'tpl_content', $data['tpl_content']);
                                 $res[] = new Number('栏目分页大小', 'page_num', $data['page_num'], 1, 500);
-                                $res[] = (new Radio('栏目排序方式', 'order_type', $data['order_type'], [
-                                    [
-                                        'label' => '默认(录入倒序)',
-                                        'value' => 0,
-                                    ], [
-                                        'label' => '录入顺序',
-                                        'value' => 1,
-                                    ], [
-                                        'label' => '优先级倒序',
-                                        'value' => 2,
-                                    ], [
-                                        'label' => '点击量倒序',
-                                        'value' => 3,
-                                    ],
-                                ]))->set('inline', true);
                                 break;
                             case 'page':
                                 $res[] = (new Summernote('内容', 'body', $data['body'], $router->buildUrl('/ebcms/admin/upload')))->set('help', '一般用于单页面显示');

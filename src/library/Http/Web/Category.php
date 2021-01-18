@@ -8,6 +8,7 @@ use App\Ebcms\Cms\Model\Content;
 use App\Ebcms\Cms\Model\Category as ModelCategory;
 use Ebcms\Pagination;
 use Ebcms\RequestFilter;
+use Ebcms\Router;
 use Ebcms\Template;
 
 class Category extends Common
@@ -17,6 +18,7 @@ class Category extends Common
         ModelCategory $modelCategory,
         Content $modelContent,
         RequestFilter $input,
+        Router $router,
         Pagination $pagination,
         Template $template
     ) {
@@ -41,6 +43,18 @@ class Category extends Common
             'keywords' => $category['keywords'],
             'description' => $category['description'],
         ];
+        $data['position'] = (function () use ($modelCategory, $category, $router) {
+            $res = [];
+            foreach ($modelCategory->pdata($category['id']) as $key => $value) {
+                $res[] = [
+                    'title' => $value['title'],
+                    'url' => $router->buildUrl('/ebcms/cms/web/category', [
+                        'id' => $value['alias'] ?: $value['id'],
+                    ]),
+                ];
+            }
+            return $res;
+        })();
 
         switch ($category['type']) {
             case 'channel':
@@ -51,6 +65,7 @@ class Category extends Common
                     'category_id' => $category['id'],
                     'state' => 1,
                     'ORDER' => [
+                        'top' => 'DESC',
                         'id' => 'DESC',
                     ],
                 ];

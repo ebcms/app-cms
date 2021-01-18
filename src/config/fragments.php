@@ -2,7 +2,7 @@
 return [
     'lunbo' => [
         'type' => 'content',
-        'title' => '轮播',
+        'title' => '首页幻灯',
         'template' => (function () {
             $template = <<<'str'
 {php $contents = array_slice($contents, 0, 6)}
@@ -30,33 +30,9 @@ str;
             return htmlspecialchars($template);
         })(),
     ],
-    'product' => [
-        'type' => 'content',
-        'title' => '产品滚动',
-        'template' => (function () {
-            $template = <<<'str'
-<div class="card mb-3 bg-light">
-    <div class="card-header">{$fragment['title']}</div>
-    <div class="card-body">
-        <marquee direction="left" behavior="alternate" scrollamoun="1" scrolldelay="50" onMouseOver="this.stop()" onMouseOut="this.start()">
-            <ul class="list-inline my-0" style="word-spacing: nowarp;">
-                {foreach $contents as $vo}
-                <li class="list-inline-item">
-                    <a href="{$vo.redirect_uri}" class="text-decoration-none"><img src="{$vo.cover}" class="img-thumbnail" style="width:200px;height:150px;" alt="{$vo.title}">
-                    <div class="py-2 text-truncate" style="max-width:180px;">{$vo['title']}</div></a>
-                </li>
-                {/foreach}
-            </ul>
-        </marquee>
-    </div>
-</div>
-str;
-            return htmlspecialchars($template);
-        })(),
-    ],
     'toutiao' => [
         'type' => 'content',
-        'title' => '首页：头条',
+        'title' => '首页头条',
         'template' => (function () {
             $template = <<<'str'
 {php $contents = array_slice($contents, 0, 11)}
@@ -113,6 +89,21 @@ str;
         <a class="list-group-item list-group-item-action text-nowrap text-truncate" href="{:$router->buildUrl('/ebcms/cms/web/content', ['id'=>$vo['alias']?:$vo['id']])}">▪ {$vo.title}</a>
         {/foreach}
     </div>
+</div>
+str;
+            return htmlspecialchars($template);
+        })(),
+    ],
+    'link' => [
+        'type' => 'content',
+        'title' => '友情链接',
+        'template' => (function () {
+            $template = <<<'str'
+<div class="mb-3 p-3 bg-light">
+    <span class="font-weight-bold mr-2">{$fragment.title}</span>
+    {foreach $contents as $vo}
+        <a class="mr-2" href="{$vo.redirect_uri}" target="_blank">{$vo.title}</a>
+    {/foreach}
 </div>
 str;
             return htmlspecialchars($template);

@@ -17,7 +17,7 @@
             <div class="col-md-6">
                 <div class="card mb-3 bg-light">
                     <div class="card-header"><a href="{:$router->buildUrl('/ebcms/cms/web/category', ['id'=>$vo['alias']?:$vo['id']])}">{$vo['title']}</a></div>
-                    {php $contents = $content_model->select('*', ['category_id'=>$ids, 'state'=>1,'LIMIT'=>5,'ORDER'=>['id'=>'DESC']])}
+                    {php $contents = $content_model->select('*', ['category_id'=>$ids, 'state'=>1,'LIMIT'=>5,'ORDER'=>['top'=>'DESC','id'=>'DESC']])}
                     {if $content=array_shift($contents)}
                     <div class="card-body">
                         <div class="media position-relative">
@@ -53,5 +53,5 @@
         {if function_exists('tpl_fragment')}{fragment 'ebcms.cms.zuixin', '暂无'}{/if}
     </div>
 </div>
-{if function_exists('tpl_fragment')}{fragment 'ebcms.fragment.demo_link', '暂无'}{/if}
+{if function_exists('tpl_fragment')}{fragment 'ebcms.cms.link', '暂无'}{/if}
 {include web/common/footer@ebcms/cms}

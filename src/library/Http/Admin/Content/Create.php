@@ -14,7 +14,6 @@ use Ebcms\FormBuilder\Builder;
 use Ebcms\FormBuilder\Col;
 use Ebcms\FormBuilder\Field\Checkbox;
 use Ebcms\FormBuilder\Field\Hidden;
-use Ebcms\FormBuilder\Field\Number;
 use Ebcms\FormBuilder\Field\Radio;
 use Ebcms\FormBuilder\Field\Select;
 use Ebcms\FormBuilder\Field\Text;
@@ -28,6 +27,7 @@ use Ebcms\FormBuilder\Other\TextUpload;
 use Ebcms\FormBuilder\Row;
 use Ebcms\FormBuilder\Summary;
 use Ebcms\RequestFilter;
+use Ebcms\Xss;
 
 class Create extends Common
 {
@@ -54,6 +54,7 @@ class Create extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('category_id', $category['id'])),
                     (new Text('标题', 'title', $data['title'] ?? ''))->set('help', '一般不超过80个字符')->set('required', 1),
+                    (new Summernote('内容', 'body', '', $router->buildUrl('/ebcms/admin/upload'))),
                     ...(function () use ($router, $category, $data): array {
                         $res = [];
                         // 筛选项
@@ -91,7 +92,7 @@ class Create extends Common
                         // 自定义字段
                         foreach (array_filter(explode(PHP_EOL, $category['fields'])) as $val) {
                             $field = [];
-                            $extdata = isset($data['body']) ? unserialize($data['body']) : [];
+                            $extra = isset($data['extra']) ? unserialize($data['extra']) : [];
                             foreach (array_filter(explode(';', trim($val))) as $tmp) {
                                 list($k, $v) = explode('=', trim($tmp));
                                 $field[trim($k)] = trim($v);
@@ -102,41 +103,41 @@ class Create extends Common
                             switch ($field['type']) {
                                 case 'summernote':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new Summernote($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new Summernote($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'simplemde':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new SimpleMDE($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new SimpleMDE($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'text':
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new Text($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new Text($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'textarea':
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new Textarea($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new Textarea($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'cover':
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Cover($field['label'], 'body[' . $field['name'] . ']'));
+                                    $tmp = (new Cover($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'pics':
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $tmp = (new Pics($field['label'], 'body[' . $field['name'] . ']'));
+                                    $tmp = (new Pics($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'textupload':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new TextUpload($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new TextUpload($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'files':
                                     $field['upload_url'] = $field['upload_url'] ?? $router->buildUrl('/ebcms/admin/upload');
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new Files($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new Files($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'radio':
                                     $field['options'] = (function () use ($field): array {
@@ -149,9 +150,9 @@ class Create extends Common
                                         }
                                         return $res;
                                     })();
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
                                     $field['inline'] = $field['inline'] ?? 1;
-                                    $tmp = (new Radio($field['label'], 'body[' . $field['name'] . ']'));
+                                    $tmp = (new Radio($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'checkbox':
                                     $field['options'] = (function () use ($field): array {
@@ -164,9 +165,9 @@ class Create extends Common
                                         }
                                         return $res;
                                     })();
-                                    $field['value'] = $extdata[$field['name']] ?? array_filter(explode('|', $field['value']));
+                                    $field['value'] = $extra[$field['name']] ?? array_filter(explode('|', $field['value']));
                                     $field['inline'] = $field['inline'] ?? 1;
-                                    $tmp = (new Checkbox($field['label'], 'body[' . $field['name'] . ']'));
+                                    $tmp = (new Checkbox($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
                                 case 'select':
                                     $field['options'] = (function () use ($field): array {
@@ -179,8 +180,8 @@ class Create extends Common
                                         }
                                         return $res;
                                     })();
-                                    $field['value'] = $extdata[$field['name']] ?? ($field['value'] ?? '');
-                                    $tmp = (new Select($field['label'], 'body[' . $field['name'] . ']'));
+                                    $field['value'] = $extra[$field['name']] ?? ($field['value'] ?? '');
+                                    $tmp = (new Select($field['label'], 'extra[' . $field['name'] . ']'));
                                     break;
 
                                 default:
@@ -210,12 +211,18 @@ class Create extends Common
                 (new Col('col-md-3'))->addItem(
                     (new Text('别名', 'alias')),
                     (new Cover('频道图', 'cover', $data['cover'] ?? '', $router->buildUrl('/ebcms/admin/upload'))),
-                    (new Radio('是否置顶', 'top', $data['top'] ?? '0'))->set('options', [
+                    (new Radio('置顶', 'top', $data['top'] ?? '0'))->set('options', [
                         [
-                            'label' => '是',
+                            'label' => '三级置顶',
+                            'value' => 3,
+                        ], [
+                            'label' => '二级置顶',
+                            'value' => 2,
+                        ], [
+                            'label' => '一级置顶',
                             'value' => 1,
                         ], [
-                            'label' => '否',
+                            'label' => '不置顶',
                             'value' => 0,
                         ],
                     ])->set('inline', true),
@@ -226,7 +233,6 @@ class Create extends Common
                     ),
                     (new Summary('其他参数设置'))->addItem(
                         new Text('模板', 'tpl', $data['tpl'] ?? ''),
-                        (new Number('优先级', 'priority', $data['priority'] ?? '50', 1, 100))->set('help', '越大越靠前'),
                         new Text('重定向地址', 'redirect_uri', $data['redirect_uri'] ?? '')
                     )
                 )
@@ -236,6 +242,7 @@ class Create extends Common
     }
 
     public function post(
+        Xss $xss,
         RequestFilter $input,
         Content $contentModel,
         Tag $tagModel
@@ -246,13 +253,13 @@ class Create extends Common
             'keywords' => $input->post('keywords'),
             'description' => $input->post('description'),
             'cover' => $input->post('cover'),
-            'body' => serialize($input->post('body')),
+            'body' => $input->post('body', '', [[$xss, 'clear']]),
+            'extra' => serialize($input->post('extra')),
             'state' => $input->post('state', 0, ['intval']),
             'tpl' => $input->post('tpl'),
             'alias' => $input->post('alias'),
             'tags' => $input->post('tags'),
             'redirect_uri' => $input->post('redirect_uri'),
-            'priority' => $input->post('priority'),
             'top' => $input->post('top'),
             'filter0' => $input->post('filter0'),
             'filter1' => $input->post('filter1'),
