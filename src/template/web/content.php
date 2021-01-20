@@ -1,11 +1,16 @@
 {include web/common/header@ebcms/cms}
+<style>
+    .body img {
+        max-width: 100%;
+    }
+</style>
 <div class="row">
     <div class="col-md-9">
         {include web/common/nav@ebcms/cms}
-        <h1 class="h1 mt-3">{$content.title}</h1>
+        <h1 class="h1 mt-3 py-2">{$content.title}</h1>
         <hr>
         <div class="mb-3 text-muted text-monospace"><span class="mr-2">更新时间：{:date('Y-m-d H:i', $content['update_time'])}</span><span>浏览：{$content.click}</span></div>
-        <div class="my-3">
+        <div class="my-3 body">
             {:htmlspecialchars_decode($content['body'])}
         </div>
         {if $relations=$content_model->getRelationContents($content['tags'])}
