@@ -43,7 +43,7 @@
             </tr>
         </thead>
         <tbody>
-            {function test($categorys, $pid=0, $level=0, $router)}
+            {function test($categorys, $router, $pid=0, $level=0)}
             {foreach $categorys as $vo}
             {if $vo['pid'] == $pid}
             <tr>
@@ -100,11 +100,11 @@
                     <a href="{:$router->buildUrl('/ebcms/cms/admin/category/delete', ['id'=>$vo['id']])}" onclick="return confirm('删除后无法恢复，确定删除？');">删除</a>
                 </td>
             </tr>
-            {:test($categorys, $vo['id'], $level+1, $router)}
+            {:test($categorys, $router, $vo['id'], $level+1)}
             {/if}
             {/foreach}
             {/function}
-            {:test($categorys, 0, 0, $router)}
+            {:test($categorys, $router, 0, 0)}
         </tbody>
     </table>
 </div>
