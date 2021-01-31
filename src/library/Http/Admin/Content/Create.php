@@ -54,7 +54,7 @@ class Create extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('category_id', $category['id'])),
                     (new Text('标题', 'title', $data['title'] ?? ''))->set('help', '一般不超过80个字符')->set('required', 1),
-                    (new Summernote('内容', 'body', $data['body'], $router->buildUrl('/ebcms/admin/upload'))),
+                    (new Summernote('内容', 'body', $data['body'] ?? '', $router->buildUrl('/ebcms/admin/upload'))),
                     ...(function () use ($router, $category, $data): array {
                         $res = [];
                         // 筛选项
