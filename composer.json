@@ -4,10 +4,12 @@
     "type": "ebcms-app",
     "license": "Apache-2.0",
     "require": {
-        "ebcms/admin": "^1.0",
-        "ebcms/web": "1.*",
-        "ebcms/xss-clear": "1.*",
-        "ebcms/fragment": "1.*"
+        "ebcms/admin": "^2.0",
+        "ebcms/web": "2.*",
+        "ebcms/xss-clear": "1.*"
+    },
+    "suggest": {
+        "ebcms/fragment": "Allow sending content to fragment~"
     },
     "autoload": {
         "psr-4": {
